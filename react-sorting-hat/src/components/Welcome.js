@@ -1,10 +1,10 @@
 import React from 'react';
 
-export default () => {
+export default (props) => {
     return( 
         <header className="App-header">
             <h1 className="App-title">Soring Hat</h1>
-            <button>Begin</button>
+            <button onClick={props.startQuestions}>Begin</button>
         </header>
     )
 
