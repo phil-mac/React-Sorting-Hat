@@ -1,5 +1,4 @@
 import React from 'react';
-import * as firebase from 'firebase';
 
 import Welcome from './Welcome';
 import Question from './Question';
@@ -9,15 +8,22 @@ import {questionData} from './QuestionData';
 
 import {Sort} from '../../hooks/Sort'
 
+import {withFirebase} from '../Firebase';
+import { initializeApp } from 'firebase';
+
+const initialState = {
+  questionList: questionData,
+  qIndex: -1,
+  houseResult: 'noneYet'
+}
+
 class SortingHat extends React.Component {
   state = {
-    questionList: questionData,
-    qIndex: -1,
-    houseResult: 'noneYet'
+    ...initialState,
   }
 
   submitQuestion = newAnswer => {
-    console.log('answered with: ' + newAnswer)
+    // console.log('answered with: ' + newAnswer)
     this.setState({
       qIndex: this.incrementQuestion(),
       questionList: this.state.questionList.map((question, index) => {
@@ -30,23 +36,48 @@ class SortingHat extends React.Component {
     })
   }
 
+  saveState = () => {
+
+  }
+
   incrementQuestion = () => {
       return this.state.qIndex + 1;
   }
 
+  componentDidMount(){
+    this.props.firebase.data().on('value', snapshot => {
+      // console.log(snapshot);
+      if(snapshot.val()){
+        const msg = snapshot.val()[this.props.userId];
+        console.log('cDM: ')
+        console.log(msg);
+        this.setState({
+          ...msg
+        })
+      }
+      
+      // setMOne(msg);
+  })
+  }
+
   componentDidUpdate(prevProps, prevState){
     console.log('cDU');
-    console.log(this.state.qIndex)
-    console.log(this.state.questionList)
+    console.log(this.state);
+    // console.log(this.state.qIndex)
+    // console.log(this.state.questionList)
     if(this.state.qIndex === this.state.questionList.length - 1){
       let house = Sort(this.state.questionList);
-      console.log('House is!: ' + house);
+      // console.log('House is!: ' + house);
       if (prevState.houseResult !== house){
         this.setState({
           houseResult: house
         })
       }
     }
+    this.props.firebase.data()
+      .set({
+          [this.props.userId]: this.state
+      })
 
     console.log('user ID in soring hat: ' + this.props.userId)
   }
@@ -57,15 +88,20 @@ class SortingHat extends React.Component {
     })
   }
 
+  reset = () => {
+    this.setState({...initialState})
+    this.startQuestions();
+  }
+
   render() {
     return (
       <div className="App">
         {this.state.qIndex === -1 && <Welcome startQuestions={this.startQuestions}/>}
         {this.state.qIndex >= 0 && this.state.qIndex <= 5 && <Question activeQuestion={this.state.questionList[this.state.qIndex]} submitQuestion={this.submitQuestion}/>}
-        {this.state.qIndex === 6 && <Results houseResult={this.state.houseResult}/>}
+        {this.state.qIndex === 6 && <Results houseResult={this.state.houseResult} reset={this.reset}/>}
       </div>
     );
   }
 }
 
-export default SortingHat;
+export default withFirebase(SortingHat);

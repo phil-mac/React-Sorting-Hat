@@ -7,7 +7,7 @@ const HomePage = (props) => {
     const [mOne, setMOne] = useState('-');
     
     const updateVal = e => {
-        console.log('update called');
+        // console.log('update called');
         props.firebase.messageOne()
         .set({
             text: e.target.value
@@ -16,9 +16,9 @@ const HomePage = (props) => {
 
     useEffect(() => {
         props.firebase.messageOne().on('value', snapshot => {
-            console.log(snapshot);
+            // console.log(snapshot);
             const msg = snapshot.val().text;
-            console.log(msg);
+            // console.log(msg);
             setMOne(msg);
         })
 
