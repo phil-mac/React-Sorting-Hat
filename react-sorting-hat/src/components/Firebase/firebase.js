@@ -54,7 +54,7 @@ const config = {
 
          messageOne = () => this.db.ref(`message`);
 
-         data = () => this.db.ref(`userData`);
+         data = (uid) => this.db.ref(`userData/${uid}`);
 
     }
 

@@ -45,10 +45,10 @@ class SortingHat extends React.Component {
   }
 
   componentDidMount(){
-    this.props.firebase.data().on('value', snapshot => {
+    this.props.firebase.data(this.props.userId).on('value', snapshot => {
       // console.log(snapshot);
       if(snapshot.val()){
-        const msg = snapshot.val()[this.props.userId];
+        const msg = snapshot.val();
         console.log('cDM: ')
         console.log(msg);
         this.setState({
@@ -58,6 +58,10 @@ class SortingHat extends React.Component {
       
       // setMOne(msg);
   })
+  }
+
+  componentWillUnmount(){
+    this.props.firebase.data(this.props.userId).off();
   }
 
   componentDidUpdate(prevProps, prevState){
@@ -74,10 +78,8 @@ class SortingHat extends React.Component {
         })
       }
     }
-    this.props.firebase.data()
-      .set({
-          [this.props.userId]: this.state
-      })
+    this.props.firebase.data(this.props.userId)
+      .set(this.state)
 
     console.log('user ID in soring hat: ' + this.props.userId)
   }
