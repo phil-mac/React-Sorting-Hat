@@ -1,16 +1,19 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {withRouter} from 'react-router-dom';
 import {compose} from 'recompose';
 
 import {SignUpLink} from '../SignUp';
+import {PasswordForgetLink} from '../PasswordForget';
 import {withFirebase} from '../Firebase';
 import * as ROUTES from '../../constants/routes';
 
-export default () => {
+export default (props) => {
     return(
         <div>
             <h1>Sign In</h1>
+            {/* <SignInGoogle /> */}
             <SignInForm />
+            <PasswordForgetLink />
             <SignUpLink />
         </div>
     )
@@ -55,33 +58,83 @@ class SignInFormBase extends React.Component{
         const isInvalid = password === '' || email === '';
         
         return(
-            <form onSubmit={this.onSubmit}>
-                <input 
-                    name='email'
-                    value={email}
-                    onChange={this.onChange}
-                    type='text'
-                    placeholder='Email Address'
-                />
-                <input 
-                    name='password'
-                    value={password}
-                    onChange={this.onChange}
-                    type='password'
-                    placeholder='Password'
-                />
-                <button disabled={isInvalid} type='submit'>
-                    Sign In
-                </button>
-                {error && <p>{error.message}</p>}
-            </form>
+            <div>
+                {/* <button onClick={this.props.firebase.doSignInWithGoogle}>Goog</button> */}
+                <form onSubmit={this.onSubmit}>
+                    <input 
+                        name='email'
+                        value={email}
+                        onChange={this.onChange}
+                        type='text'
+                        placeholder='Email Address'
+                    />
+                    <input 
+                        name='password'
+                        value={password}
+                        onChange={this.onChange}
+                        type='password'
+                        placeholder='Password'
+                    />
+                    <button disabled={isInvalid} type='submit'>
+                        Sign In
+                    </button>
+                    {error && <p>{error.message}</p>}
+                </form>
+            </div>
+            
         )
     }
 }
+
+class SignInGoogleBase extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = { error: null };
+    }
+    onSubmit = event => {
+
+        this.props.firebase
+          .doSignInWithGoogle()
+          .then(socialAuthUser => {
+            // Create a user in your Firebase Realtime Database too
+            return this.props.firebase
+              .user(socialAuthUser.user.uid)
+              .set({
+                username: socialAuthUser.user.displayName,
+                email: socialAuthUser.user.email,
+                roles: {},
+              });
+          })
+          .then(() => {
+            this.setState({ error: null });
+            this.props.history.push(ROUTES.HOME);
+          })
+          .catch(error => {
+            this.setState({ error });
+          });
+
+          event.preventDefault();
+
+      };
+    render() {
+      const { error } = this.state;
+      return (
+        <form onSubmit={this.onSubmit}>
+          <button type="submit">Sign In with Google</button>
+          {error && <p>{error.message}</p>}
+        </form>
+      );
+    }
+  }
 
 const SignInForm = compose(
     withRouter, 
     withFirebase,
 )(SignInFormBase);
+
+const SignInGoogle = compose(
+    withRouter, 
+    withFirebase,
+)(SignInGoogleBase);
 
 export {SignInForm};

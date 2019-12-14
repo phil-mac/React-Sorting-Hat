@@ -1,46 +1,19 @@
 import React from 'react';
 import * as firebase from 'firebase';
 
-import './App.css';
-import Welcome from './components/Welcome';
-import Question from './components/Question';
-import Results from './components/Results';
+import Welcome from './Welcome';
+import Question from './Question';
+import Results from './Results';
 
 import {questionData} from './QuestionData';
 
-import {Sort} from './hooks/Sort'
+import {Sort} from '../../hooks/Sort'
 
-var firebaseConfig = {
-  apiKey: "AIzaSyBSgCOK7uu5PNWErMw6lpbLGJbIo8tJzhU",
-  authDomain: "sorting-hat-8.firebaseapp.com",
-  databaseURL: "https://sorting-hat-8.firebaseio.com",
-  projectId: "sorting-hat-8",
-  storageBucket: "sorting-hat-8.appspot.com",
-  messagingSenderId: "946116216681",
-  appId: "1:946116216681:web:aef021cfef7582ded2dff8",
-  measurementId: "G-5JGENWBT7Y"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-class App extends React.Component {
+class SortingHat extends React.Component {
   state = {
-    speed: 10,
     questionList: questionData,
-    // activeQuestion: questionData[0],
     qIndex: -1,
     houseResult: 'noneYet'
-  }
-
-  componentDidMount(){
-    const rootRef = firebase.database().ref('users').child('react');
-    const speedRef = rootRef.child('speed');
-    speedRef.on('value', snap => {
-      this.setState({
-        speed: snap.val()
-      })
-    });
-    
   }
 
   submitQuestion = newAnswer => {
@@ -58,11 +31,7 @@ class App extends React.Component {
   }
 
   incrementQuestion = () => {
-    // if (this.state.qIndex < this.state.questionList.length - 1){
       return this.state.qIndex + 1;
-    // } else{
-    //   return this.state.qIndex;
-    // }
   }
 
   componentDidUpdate(prevProps, prevState){
@@ -79,6 +48,7 @@ class App extends React.Component {
       }
     }
 
+    console.log('user ID in soring hat: ' + this.props.userId)
   }
 
   startQuestions = () =>{
@@ -90,7 +60,6 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        <div>{this.state.speed}</div>
         {this.state.qIndex === -1 && <Welcome startQuestions={this.startQuestions}/>}
         {this.state.qIndex >= 0 && this.state.qIndex <= 5 && <Question activeQuestion={this.state.questionList[this.state.qIndex]} submitQuestion={this.submitQuestion}/>}
         {this.state.qIndex === 6 && <Results houseResult={this.state.houseResult}/>}
@@ -99,4 +68,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default SortingHat;

@@ -1,9 +1,7 @@
 import React from 'react';
 
-export default () => {
-    return(
-        <div>
-            <h1>Session</h1>
-        </div>
-    )
-}
+import AuthUserContext from './context';
+import withAuthentication from './withAuthentication';
+import withAuthorization from './withAuthorization';
+
+export {AuthUserContext, withAuthentication, withAuthorization};
